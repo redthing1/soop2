@@ -92,9 +92,9 @@ void vibrant_web(T)(T vib) {
             std.file.copy(upl_file.tempPath.to!string, recv_path);
             writefln("saved file %s to %s", upl_save_name, recv_path);
 
-            // ok
-            res.statusCode = HTTPStatus.ok;
-            res.writeBody("ok");
+            // no content
+            res.statusCode = HTTPStatus.noContent;
+            res.writeBody("");
         }
 
         router.post("*", &upload_file_action);
