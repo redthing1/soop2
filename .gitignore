@@ -1,0 +1,17 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/soop2
+soop2.so
+soop2.dylib
+soop2.dll
+soop2.a
+soop2.lib
+soop2-test-*
+*.exe
+*.pdb
+*.o
+*.obj
+*.lst
+*.a
