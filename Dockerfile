@@ -1,5 +1,5 @@
 ARG D_COMPILER=ldc-1.30.0
-ARG BINARY_NAME=frenchfry_vibrance
+ARG BINARY_NAME=soop2
 ARG WEB_PORT=8000
 
 FROM debian:bookworm-slim AS build
