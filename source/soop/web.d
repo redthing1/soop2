@@ -46,10 +46,14 @@ void vibrant_web(T)(T vib) {
                     sb ~= format("<body><h1>Directory listing</h1><table class=\"list\">");
                     sb ~= format("<tr><th>name</th><th>size</th><th>modified</th></tr>");
                     foreach (dir_entry; dirEntries(true_path, SpanMode.shallow)) {
-                        auto modtime = std.file.timeLastModified(dir_entry.name);
-                        sb ~= format("<tr><td><a href=\"%s\">%s</a></td><td>%s</td><td>%s</td></tr>",
-                            dir_entry.name, dir_entry.name, dir_entry.size, modtime.format(
-                                "%Y-%m-%d %H:%M:%S"));
+                        try {
+                            auto modtime = std.file.timeLastModified(dir_entry.name);
+                            sb ~= format("<tr><td><a href=\"%s\">%s</a></td><td>%s</td><td>%s</td></tr>",
+                                dir_entry.name, dir_entry.name, dir_entry.size, modtime.format(
+                                    "%Y-%m-%d %H:%M:%S"));
+                        } catch (Exception e) {
+                            logger.error("error getting file info for %s: %s", dir_entry.name, e.msg);
+                        }
                     }
                     sb ~= format("</table></body></html>");
 
@@ -60,6 +64,7 @@ void vibrant_web(T)(T vib) {
                 }
             } else {
                 // serve the file
+                logger.info("serving file: %s", true_path);
                 serveStaticFile(true_path)(req, res);
             }
         }
@@ -81,7 +86,7 @@ void vibrant_web(T)(T vib) {
             auto upl_file_size = std.file.getSize(upl_file.tempPath.to!string);
             auto upl_save_name = req.path[1 .. $];
 
-            writefln("received file: %s (%s), requested to upload to: %s", upl_file.filename, upl_file_size, upl_save_name);
+            logger.info("received file: %s (%s), requested to upload to: %s", upl_file.filename, upl_file_size, upl_save_name);
 
             // make a filename for the uploaded file
             auto datestamp = Clock.currTime.format("%Y%m%d_%H%M%S");
@@ -90,7 +95,7 @@ void vibrant_web(T)(T vib) {
             // copy the temporary file to the data directory
             auto recv_path = buildPath(g_context.data_dir, recv_filename);
             std.file.copy(upl_file.tempPath.to!string, recv_path);
-            writefln("saved file %s to %s", upl_save_name, recv_path);
+            logger.info("saved file %s to %s", upl_save_name, recv_path);
 
             // no content
             res.statusCode = HTTPStatus.noContent;
