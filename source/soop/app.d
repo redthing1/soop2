@@ -6,7 +6,6 @@ import std.file;
 import std.path;
 import std.algorithm : min;
 
-import vibe.d;
 import vibrant.d;
 import commandr;
 
@@ -35,17 +34,15 @@ void main(string[] args) {
 	logger.info("starting soop %s at http://%s:%s", APP_VERSION, server_host, server_port);
 
 	auto settings = new HTTPServerSettings;
-	settings.hostName = server_host;
+	settings.bindAddresses = [server_host];
 	settings.port = server_port;
 	settings.maxRequestSize = 16_000_000_000;
 
 	auto vib = Vibrant(settings);
 	vibrant_web(vib);
 
-	// listenHTTP is called automatically
-	string[] extra_args;
-	runApplication(&extra_args);
+	vib.start();
 
 	scope (exit)
-		vib.Stop();
+		vib.stop();
 }
