@@ -8,4 +8,11 @@ dependency "vibrance-z" version="~>0.3.0"
 dependency "commandr" version="~>0.2.0"
 dependency "typetips" version="~>0.1.4"
 dependency "minlog" version="~>3.0.0"
-targetType "executable"
+
+configuration "default" {
+    targetType "executable"
+}
+configuration "static_bin" {
+    dflags "-static"
+    targetType "executable"
+}
