@@ -66,6 +66,16 @@ void vibrant_web(T)(T vib) {
                     sb ~= format("<tr><th>name</th><th>size</th><th>modified</th></tr>");
 
                     auto dir_entries = dirEntries(true_path, SpanMode.shallow).array;
+
+                    if (!g_context.listing_config.ignore_file.isNull) {
+                        // filter out ignored files
+                        dir_entries = filter_ignored_paths_from(
+                            dir_entries,
+                            g_context.public_dir,
+                            g_context.listing_config.ignore_file.get
+                        );
+                    }
+
                     // sort by name, and put directories first
                     dir_entries.sort!((a, b) {
                         if (a.isDir && !b.isDir)

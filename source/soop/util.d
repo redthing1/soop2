@@ -5,14 +5,23 @@ import std.conv;
 import std.algorithm;
 import std.traits;
 import std.format;
-import typetips;
-import std.typecons: Nullable;
+import std.typecons : Nullable;
+import std.file;
+import std.path;
+import std.array;
+import std.conv;
 
 import toml;
+import typetips;
 
 static class TomlConfigHelper {
     static T bind(T)(TOMLDocument doc, string table_name) {
-        auto ret = T.init; // default value for config model
+        auto default_model = T.init; // default value for config model
+        return bind!T(default_model, doc, table_name);
+    }
+
+    static T bind(T)(ref T ret, TOMLDocument doc, string table_name) {
+        // auto ret = instance;
 
         if (table_name !in doc) {
             // table not found in doc
@@ -25,8 +34,10 @@ static class TomlConfigHelper {
         foreach (member_name; __traits(allMembers, T)) {
             // if the member is not in the table, skip it
             if (member_name !in table) {
+                // writefln("member %s not in table", member_name);
                 continue;
             }
+            // writefln("binding member %s", member_name);
 
             // get the model member type
             alias member_type = typeof(__traits(getMember, T, member_name));
@@ -47,8 +58,7 @@ static class TomlConfigHelper {
                 __traits(getMember, ret, member_name) = Nullable!float(table[member_name].floating);
             } else static if (is(member_type == Nullable!long)) {
                 __traits(getMember, ret, member_name) = Nullable!long(table[member_name].integer);
-            }
-            else {
+            } else {
                 static assert(0, format("cannot bind model member %s of type %s", member_name, member_type
                         .stringof));
             }
@@ -75,4 +85,60 @@ string human_file_size(ulong size, int precision = 2) {
         unit++;
     }
     return format("%.*f %s", precision, dsize, units[unit]);
+}
+
+/**
+ * filters out paths matching a pattern from an ignore file
+*/
+DirEntry[] filter_ignored_paths_from(DirEntry[] entries, string base_dir, string ignore_file) {
+    // read ignore file, split by non-empty lines
+    auto ignore_patterns = File(ignore_file).byLine.filter!(a => a.length > 0).array;
+
+    // convert ignore patterns to regexes
+    auto ignore_regexes = ignore_patterns.map!(a => simple_pattern_to_regex(a.to!string));
+
+    // filter out ignored paths
+    // return entries.filter!(a => !ignore_regexes.any!(b => b.match(a.name)));
+    DirEntry[] ret;
+    foreach (entry; entries) {
+        auto rel_path = std.path.relativePath(entry.name, base_dir);
+        // writeln("matching path ", rel_path);
+        foreach (regex_str; ignore_regexes) {
+            import std.regex : regex, matchFirst;
+
+            auto re = regex(regex_str);
+            // writefln("matching path [%s] against pattern [%s] / regex [%s]", rel_path, regex_str, regex_str);
+            if (matchFirst(rel_path, re)) {
+                // file is ignored
+                // writeln("  matched, ignoring");
+                continue;
+            }
+            // file is not ignored
+            ret ~= entry;
+        }
+    }
+
+    return ret;
+}
+
+/**
+ * convert a simple pattern to a regex
+ * Params:
+ *   pattern = the pattern to convert
+ * Returns: a regex
+ */
+string simple_pattern_to_regex(string pattern) {
+    // escape regex special characters
+    auto escaped_pattern = pattern.replace(r"([\\^$.*+?()[\]{}|])", r"\\$1");
+
+    // replace * with .*
+    escaped_pattern = escaped_pattern.replace(r"\*", r".*");
+
+    // replace ? with .
+    escaped_pattern = escaped_pattern.replace(r"\?", r".");
+
+    // add ^ and $ to match the whole string
+    escaped_pattern = "^" ~ escaped_pattern ~ "$";
+
+    return escaped_pattern;
 }

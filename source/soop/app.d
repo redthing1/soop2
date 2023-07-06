@@ -45,14 +45,20 @@ void main(string[] args) {
 	auto upload_dir = no!string;
 
 	// config file, if provided
+	auto server_config = ServerConfig();
+	auto listing_config = ListingConfig();
 	if (a.option("configfile")) {
-		auto config_doc = parseTOML(std.file.readText(a.option("configfile")));
-		auto server_config = TomlConfigHelper.bind!ServerConfig(config_doc, "server");
+		auto config_path = a.option("configfile");
+		logger.info("using config file %s", config_path);
+		auto config_doc = parseTOML(std.file.readText(config_path));
+		TomlConfigHelper.bind!ServerConfig(server_config, config_doc, "server");
 		
 		server_host = toOptional(server_config.host);
 		server_port = toOptional(server_config.port);
 		public_dir = toOptional(server_config.public_dir);
 		upload_dir = toOptional(server_config.upload_dir);
+
+		TomlConfigHelper.bind!ListingConfig(listing_config, config_doc, "listing");
 	}
 
 	// cli arg config overrides config file
@@ -65,11 +71,14 @@ void main(string[] args) {
 	g_context.public_dir = public_dir.get;
 	g_context.upload_dir = upload_dir.get;
 
+	g_context.listing_config = listing_config;
+
 	// chdir to data dir
 	if (!std.file.exists(g_context.public_dir)) {
 		writeln("data directory does not exist");
 		return;
 	}
+
 	// logger.trace("changing working directory to %s", g_context.public_dir);
 	// std.file.chdir(g_context.public_dir);
 
@@ -78,7 +87,12 @@ void main(string[] args) {
 	auto settings = new HTTPServerSettings;
 	settings.bindAddresses = [server_host.get];
 	settings.port = cast(ushort) server_port.get;
-	settings.maxRequestSize = 16_000_000_000;
+	settings.maxRequestSize = server_config.max_upload_size;
+
+	logger.dbg("public dir: %s", g_context.public_dir);
+	logger.dbg("upload dir: %s", g_context.upload_dir);
+	logger.dbg("max request size: %s", settings.maxRequestSize);
+	logger.dbg("listing config: %s", listing_config);
 
 	auto vib = Vibrant(settings);
 	vibrant_web(vib);
