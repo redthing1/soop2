@@ -20,13 +20,16 @@ void vibrant_web(T)(T vib) {
         // router.get("*", serveStaticFiles(g_context.data_dir));
 
         void serve_data_dir_action(HTTPServerRequest req, HTTPServerResponse res) {
+            logger.trace("GET %s", req.path);
             // get the true path
             auto true_path = buildPath(g_context.data_dir, req.path[1 .. $]);
+            logger.trace("  true path: %s", true_path);
 
             // check if the path is a directory
             if (isDir(true_path)) {
                 // check if the path ends with a slash
                 if (req.path.endsWith("/")) {
+                    logger.info("serving directory listing: %s", true_path);
                     // return a simple html directory listing
                     auto sb = appender!string;
 
@@ -47,9 +50,13 @@ void vibrant_web(T)(T vib) {
                     sb ~= format("<tr><th>name</th><th>size</th><th>modified</th></tr>");
                     foreach (dir_entry; dirEntries(true_path, SpanMode.shallow)) {
                         try {
+                            // get the relative path of the dir entry to the data dir
+                            auto rel_path = relativePath(dir_entry.name, g_context.data_dir);
                             auto modtime = std.file.timeLastModified(dir_entry.name);
+                            auto file_display_name = std.path.baseName(rel_path);
+                            auto file_request_path = format("/%s", rel_path);
                             sb ~= format("<tr><td><a href=\"%s\">%s</a></td><td>%s</td><td>%s</td></tr>",
-                                dir_entry.name, dir_entry.name, dir_entry.size, modtime.format(
+                                file_request_path, file_display_name, dir_entry.size, modtime.format(
                                     "%Y-%m-%d %H:%M:%S"));
                         } catch (Exception e) {
                             logger.error("error getting file info for %s: %s", dir_entry.name, e.msg);
@@ -59,7 +66,8 @@ void vibrant_web(T)(T vib) {
 
                     res.writeBody(sb.data, "text/html");
                 } else {
-                    // redirect to the same path with a slash
+                    // if it's a dir but the request doesn't end with a slash, redirect to the same path with a slash
+                    logger.trace("  redirecting to %s/", req.path);
                     res.redirect(req.path ~ "/");
                 }
             } else {
