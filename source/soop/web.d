@@ -6,6 +6,7 @@ import std.json;
 import std.file;
 import std.path;
 import std.array;
+import std.algorithm;
 
 import vibrant.d;
 import datefmt;
@@ -48,12 +49,25 @@ void vibrant_web(T)(T vib) {
                     sb ~= format("<html><head><style>%s</style></head>", DIR_LISTING_CSS);
                     sb ~= format("<body><h1>Directory listing</h1><table class=\"list\">");
                     sb ~= format("<tr><th>name</th><th>size</th><th>modified</th></tr>");
-                    foreach (dir_entry; dirEntries(true_path, SpanMode.shallow)) {
+
+                    auto dir_entries = dirEntries(true_path, SpanMode.shallow).array;
+                    // sort by name, and put directories first
+                    dir_entries.sort!((a, b) {
+                        if (a.isDir && !b.isDir) return true;
+                        if (!a.isDir && b.isDir) return false;
+                        return a.name < b.name;
+                    });
+                    foreach (dir_entry; dir_entries) {
                         try {
                             // get the relative path of the dir entry to the data dir
                             auto rel_path = relativePath(dir_entry.name, g_context.data_dir);
                             auto modtime = std.file.timeLastModified(dir_entry.name);
-                            auto file_display_name = std.path.baseName(rel_path);
+                            // auto file_display_name = std.path.baseName(rel_path);
+                            if (dir_entry.isDir) {
+                                file_display_name = format("%s/", file_display_name);
+                            } else {
+                                file_display_name = format("%s", file_display_name);
+                            }
                             auto file_request_path = format("/%s", rel_path);
                             sb ~= format("<tr><td><a href=\"%s\">%s</a></td><td>%s</td><td>%s</td></tr>",
                                 file_request_path, file_display_name, dir_entry.size, modtime.format(
