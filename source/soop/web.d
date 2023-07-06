@@ -131,6 +131,10 @@ void vibrant_web(T)(T vib) {
 
         // accept arbitrary POST requests
         void upload_file_action(HTTPServerRequest req, HTTPServerResponse res) {
+            if (!g_context.enable_upload) {
+                res.statusCode = HTTPStatus.forbidden;
+                return res.writeBody("uploading is disabled");
+            }
             // we want to accept form data with an uploaded file
             auto uploaded_files = req.files;
             if (uploaded_files.length == 0) {

@@ -25,6 +25,7 @@ void main(string[] args) {
 				.full("config-file"))
 		.add(new Option("l", "host", "host to listen on").defaultValue("0.0.0.0"))
 		.add(new Option("p", "port", "config file to use").defaultValue("8000"))
+		.add(new Flag("u", "enableupload", "enable file uploads"))
 		.add(new Flag("v", "verbose", "turns on more verbose output").repeating)
 		.add(new Flag("q", "quiet", "reduces output verbosity").repeating)
 		.parse(args);
@@ -43,6 +44,7 @@ void main(string[] args) {
 	auto server_port = no!long;
 	auto public_dir = no!string;
 	auto upload_dir = no!string;
+	auto enable_upload = no!bool;
 
 	// config file, if provided
 	auto server_config = ServerConfig();
@@ -57,6 +59,7 @@ void main(string[] args) {
 		server_port = toOptional(server_config.port);
 		public_dir = toOptional(server_config.public_dir);
 		upload_dir = toOptional(server_config.upload_dir);
+		enable_upload = toOptional(server_config.enable_upload);
 
 		TomlConfigHelper.bind!ListingConfig(listing_config, config_doc, "listing");
 	}
@@ -66,10 +69,12 @@ void main(string[] args) {
 	if (!server_port.has) server_port = some(a.option("port").to!ushort);
 	if (!public_dir.has) public_dir = some(a.arg("publicdir"));
 	if (!upload_dir.has) upload_dir = public_dir; // default to public dir
+	if (!enable_upload.has) enable_upload = some(a.flag("enableupload"));
 
 	// copy config to global context
 	g_context.public_dir = public_dir.get;
 	g_context.upload_dir = upload_dir.get;
+	g_context.enable_upload = enable_upload.get;
 
 	g_context.listing_config = listing_config;
 
