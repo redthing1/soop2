@@ -62,11 +62,11 @@ void vibrant_web(T)(T vib) {
                             // get the relative path of the dir entry to the data dir
                             auto rel_path = relativePath(dir_entry.name, g_context.data_dir);
                             auto modtime = std.file.timeLastModified(dir_entry.name);
-                            // auto file_display_name = std.path.baseName(rel_path);
+                            string file_display_name;
                             if (dir_entry.isDir) {
-                                file_display_name = format("%s/", file_display_name);
+                                file_display_name = format("%s/", rel_path);
                             } else {
-                                file_display_name = format("%s", file_display_name);
+                                file_display_name = format("%s", rel_path);
                             }
                             auto file_request_path = format("/%s", rel_path);
                             sb ~= format("<tr><td><a href=\"%s\">%s</a></td><td>%s</td><td>%s</td></tr>",
