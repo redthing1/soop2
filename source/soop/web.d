@@ -23,15 +23,17 @@ enum INTERNAL_STATIC_STYLE_DATA = import("style.css");
 void vibrant_web(T)(T vib) {
     with (vib) {
         // serve internal static files
-        Get(INTERNAL_STATIC_STYLE_PATH, "text/css", (req, res) { return INTERNAL_STATIC_STYLE_DATA; });
+        Get(INTERNAL_STATIC_STYLE_PATH, "text/css", (req, res) {
+            return INTERNAL_STATIC_STYLE_DATA;
+        });
 
         // serve data directory as static files
-        // router.get("*", serveStaticFiles(g_context.data_dir));
+        // router.get("*", serveStaticFiles(g_context.public_dir));
 
-        void serve_data_dir_action(HTTPServerRequest req, HTTPServerResponse res) {
+        void serve_public_dir_action(HTTPServerRequest req, HTTPServerResponse res) {
             logger.trace("GET %s", req.path);
             // get the true path
-            auto true_path = buildPath(g_context.data_dir, req.path[1 .. $]);
+            auto true_path = buildPath(g_context.public_dir, req.path[1 .. $]);
             logger.trace("  true path: %s", true_path);
 
             // check if the path is a directory
@@ -42,22 +44,23 @@ void vibrant_web(T)(T vib) {
                     // return a simple html directory listing
                     auto sb = appender!string;
 
-                    auto listing_rel_path = relativePath(true_path, g_context.data_dir);
+                    auto listing_rel_path = relativePath(true_path, g_context.public_dir);
                     if (listing_rel_path == ".")
                         listing_rel_path = "";
                     listing_rel_path = format("/%s", listing_rel_path);
 
                     sb ~= format("<!DOCTYPE html>");
-                    
+
                     sb ~= format("<html><head>");
                     sb ~= format("<meta charset=\"utf-8\">");
-                    sb ~= format("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
+                    sb ~= format(
+                        "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
                     // sb ~= format("<title>Index | %s</title>", listing_rel_path);
                     sb ~= format("<title>Index of %s</title>", listing_rel_path);
                     sb ~= format("<link rel=\"stylesheet\" href=\"%s\">", INTERNAL_STATIC_STYLE_PATH);
                     sb ~= format("</head>");
                     sb ~= format("<body>");
-                    
+
                     sb ~= format("<h1>Index of <code>%s</code></h1>", listing_rel_path);
                     sb ~= format("<table class=\"list\">");
                     sb ~= format("<tr><th>name</th><th>size</th><th>modified</th></tr>");
@@ -78,7 +81,7 @@ void vibrant_web(T)(T vib) {
                     foreach (dir_entry; dir_entries) {
                         try {
                             // get the relative path of the dir entry to the data dir
-                            auto rel_path = relativePath(dir_entry.name, g_context.data_dir);
+                            auto rel_path = relativePath(dir_entry.name, g_context.public_dir);
                             auto modtime = std.file.timeLastModified(dir_entry.name);
                             string file_display_name;
                             auto rel_path_base = std.path.baseName(rel_path);
@@ -114,7 +117,7 @@ void vibrant_web(T)(T vib) {
             }
         }
 
-        router.get("*", &serve_data_dir_action);
+        router.get("*", &serve_public_dir_action);
 
         // accept arbitrary POST requests
         void upload_file_action(HTTPServerRequest req, HTTPServerResponse res) {
@@ -131,14 +134,15 @@ void vibrant_web(T)(T vib) {
             auto upl_file_size = std.file.getSize(upl_file.tempPath.to!string);
             auto upl_save_name = req.path[1 .. $];
 
-            logger.info("received file: %s (%s), requested to upload to: %s", upl_file.filename, upl_file_size, upl_save_name);
+            logger.info("received file: %s (%s), requested to upload to: %s",
+                upl_file.filename, upl_file_size, upl_save_name);
 
             // make a filename for the uploaded file
             auto datestamp = Clock.currTime.format("%Y%m%d_%H%M%S");
             auto recv_filename = format("%s_%s", datestamp, upl_save_name);
 
             // copy the temporary file to the data directory
-            auto recv_path = buildPath(g_context.data_dir, recv_filename);
+            auto recv_path = buildPath(g_context.upload_dir, recv_filename);
             std.file.copy(upl_file.tempPath.to!string, recv_path);
             logger.info("saved file %s to %s", upl_save_name, recv_path);
 
