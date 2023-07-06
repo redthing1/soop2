@@ -1,6 +1,6 @@
 module soop.global;
 
-import minlog;
+public import minlog;
 
 struct Context {
     string data_dir;
