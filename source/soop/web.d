@@ -81,10 +81,11 @@ void vibrant_web(T)(T vib) {
                             auto rel_path = relativePath(dir_entry.name, g_context.data_dir);
                             auto modtime = std.file.timeLastModified(dir_entry.name);
                             string file_display_name;
+                            auto rel_path_base = std.path.baseName(rel_path);
                             if (dir_entry.isDir) {
-                                file_display_name = format("%s/", rel_path);
+                                file_display_name = format("%s/", rel_path_base);
                             } else {
-                                file_display_name = format("%s", rel_path);
+                                file_display_name = format("%s", rel_path_base);
                             }
                             auto file_request_path = format("/%s", rel_path);
                             auto human_size = human_file_size(dir_entry.size);
