@@ -102,6 +102,7 @@ DirEntry[] filter_ignored_paths_from(DirEntry[] entries, string base_dir, string
     DirEntry[] ret;
     foreach (entry; entries) {
         auto rel_path = std.path.relativePath(entry.name, base_dir);
+        bool matched_any = false;
         // writeln("matching path ", rel_path);
         foreach (regex_str; ignore_regexes) {
             import std.regex : regex, matchFirst;
@@ -111,8 +112,11 @@ DirEntry[] filter_ignored_paths_from(DirEntry[] entries, string base_dir, string
             if (matchFirst(rel_path, re)) {
                 // file is ignored
                 // writeln("  matched, ignoring");
-                continue;
+                matched_any = true;
+                break;
             }
+        }
+        if (!matched_any) {
             // file is not ignored
             ret ~= entry;
         }
