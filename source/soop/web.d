@@ -14,6 +14,7 @@ import datefmt;
 // import mir.ser.json : serializeJson;
 
 import soop.global;
+import soop.util;
 
 void vibrant_web(T)(T vib) {
     with (vib) {
@@ -69,8 +70,9 @@ void vibrant_web(T)(T vib) {
                                 file_display_name = format("%s", rel_path);
                             }
                             auto file_request_path = format("/%s", rel_path);
+                            auto human_size = human_file_size(dir_entry.size);
                             sb ~= format("<tr><td><a href=\"%s\">%s</a></td><td>%s</td><td>%s</td></tr>",
-                                file_request_path, file_display_name, dir_entry.size, modtime.format(
+                                file_request_path, file_display_name, human_size, modtime.format(
                                     "%Y-%m-%d %H:%M:%S"));
                         } catch (Exception e) {
                             logger.error("error getting file info for %s: %s", dir_entry.name, e.msg);

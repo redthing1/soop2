@@ -8,7 +8,7 @@ import std.string;
  *   size = size in bytes
  * Returns: a human readable file size
  */
-string human_file_size(ulong size, int precision) {
+string human_file_size(ulong size, int precision = 2) {
     string[] units = ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"];
     int unit = 0;
     double dsize = size;
