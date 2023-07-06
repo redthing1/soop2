@@ -59,10 +59,10 @@ void main(string[] args) {
 	if (!server_host.has) server_host = some(a.option("host"));
 	if (!server_port.has) server_port = some(a.option("port").to!ushort);
 	if (!public_dir.has) public_dir = some(a.arg("publicdir"));
-	if (!upload_dir.has) upload_dir = some(a.arg("uploaddir"));
+	if (!upload_dir.has) upload_dir = public_dir; // default to public dir
 
 	// copy config to global context
-	g_context.public_dir = a.arg("publicdir");
+	g_context.public_dir = public_dir.get;
 	g_context.upload_dir = upload_dir.get;
 
 	// chdir to data dir
