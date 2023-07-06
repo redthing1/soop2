@@ -71,6 +71,10 @@ void vibrant_web(T)(T vib) {
                             return false;
                         return a.name < b.name;
                     });
+                    // add a parent directory link
+                    if (listing_rel_path != "/") {
+                        sb ~= format("<tr><td><a href=\"../\">../</a></td><td></td><td></td></tr>");
+                    }
                     foreach (dir_entry; dir_entries) {
                         try {
                             // get the relative path of the dir entry to the data dir
