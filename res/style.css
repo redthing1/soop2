@@ -1,14 +1,25 @@
-body,
+/* body,
 html {
     background: #fffaef;
-    /* margin: 0; */
     margin: 16px;
-}
+} */
 
 html {
     font: 14px/1.4 'Palatino', 'Baskeville', 'Times New Roman', serif;
-    color: #3f303f;
     font-weight: normal;
+    background: #fffaef;
+    color: #3f303f;
+}
+
+@media(prefers-color-scheme: dark) {
+    html {
+        background: #3f303f;
+        color: #fffaef;
+    }
+}
+
+body {
+    margin: 16px;
 }
 
 h1 {
@@ -16,28 +27,36 @@ h1 {
     font-size: 2.5rem;
 }
 
-h1 > code {
+h1>code {
     background-color: #eee1c5;
     padding: 0 0.4rem;
     font-family: 'Iosevka', 'Andale Mono', 'Lucida Console', 'Courier New', monospace;
-    /* font-weight: bold; */
+}
+
+@media(prefers-color-scheme: dark) {
+    h1>code {
+        background-color: #574d62;
+    }
 }
 
 table {
     font: 14px/1.4 'Iosevka', 'Andale Mono', 'Lucida Console', 'Courier New', monospace;
-    /* margin: 16px; */
     width: calc(100% - 32px);
-    /* border-collapse: collapse; */
 }
 
 table td {
     line-height: 21px;
-    padding: 2px;
+    padding: 2px 0;
 }
 
 table tr:hover {
-    /* border: 1px solid #695e6e; */
     background: #f0f0f0;
+}
+
+@media(prefers-color-scheme: dark) {
+    table tr:hover {
+        background: #494055;
+    }
 }
 
 a {
@@ -50,4 +69,31 @@ a:visited {
 
 a:hover {
     color: #6ecebc;
+}
+
+footer {
+    margin-top: 32px;
+    /* font-size: 0.8rem; */
+    border-top: 1px solid #3f303f;
+    color: #695e6e;
+}
+
+
+@media(prefers-color-scheme: dark) {
+    a {
+        color: #a2d4ec;
+    }
+
+    a:visited {
+        color: #8c8ea8;
+    }
+
+    a:hover {
+        color: #ee59c9;
+    }
+
+    footer {
+        border-top: 1px solid #fffaef;
+        color: #8c8ea8;
+    }
 }
