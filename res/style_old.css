@@ -1,0 +1,42 @@
+body,
+html {
+    background: #222;
+    margin: 0;
+}
+
+html {
+    font: 14px/1.4 'Helvetica Neue', Helvetica, sans-serif;
+    color: #ddd;
+    font-weight: 400;
+}
+
+h1 {
+    font-weight: 200;
+    font-size: 45px;
+    margin: 20px 35px;
+}
+
+div.list {
+    background: #111;
+    padding: 20px 35px;
+}
+
+td {
+    line-height: 21px;
+}
+
+tr:hover {
+    background: black;
+}
+
+a {
+    color: #32C6FF;
+}
+
+a:visited {
+    color: #BD32FF;
+}
+
+a:hover {
+    color: #B8EBFF;
+}

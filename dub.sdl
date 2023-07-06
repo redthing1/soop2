@@ -3,6 +3,9 @@ description "soop bidirectional http server"
 authors "no"
 copyright "Copyright © 2023, no"
 license "proprietary"
+
+stringImportPaths "res"
+
 dependency "datefmt" version="~>1.0.4"
 dependency "vibrance-z" version="~>0.3.0"
 dependency "commandr" version="~>0.2.0"

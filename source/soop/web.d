@@ -16,8 +16,15 @@ import datefmt;
 import soop.global;
 import soop.util;
 
+enum INTERNAL_STATIC_PATH = "/__soop_static";
+enum INTERNAL_STATIC_STYLE_PATH = format("%s/style.css", INTERNAL_STATIC_PATH);
+enum INTERNAL_STATIC_STYLE_DATA = import("style.css");
+
 void vibrant_web(T)(T vib) {
     with (vib) {
+        // serve internal static files
+        Get(INTERNAL_STATIC_STYLE_PATH, "text/css", (req, res) { return INTERNAL_STATIC_STYLE_DATA; });
+
         // serve data directory as static files
         // router.get("*", serveStaticFiles(g_context.data_dir));
 
@@ -35,27 +42,33 @@ void vibrant_web(T)(T vib) {
                     // return a simple html directory listing
                     auto sb = appender!string;
 
-                    enum DIR_LISTING_CSS = `
-                        body, html { background: #222; margin:0; }
-                        html { font: 14px/1.4 'Helvetica Neue', Helvetica, sans-serif; color: #ddd; font-weight: 400; }
-                        h1 { font-weight: 200; font-size: 45px; margin: 20px 35px; }
-                        div.list { background: #111; padding: 20px 35px; }
-                        td { line-height: 21px; }
-                        tr:hover { background: black; }
-                        a { color: #32C6FF; }
-                        a:visited { color: #BD32FF; }
-                        a:hover { color: #B8EBFF; }
-                    `;
+                    auto listing_rel_path = relativePath(true_path, g_context.data_dir);
+                    if (listing_rel_path == ".")
+                        listing_rel_path = "";
+                    listing_rel_path = format("/%s", listing_rel_path);
 
-                    sb ~= format("<html><head><style>%s</style></head>", DIR_LISTING_CSS);
-                    sb ~= format("<body><h1>Directory listing</h1><table class=\"list\">");
+                    sb ~= format("<!DOCTYPE html>");
+                    
+                    sb ~= format("<html><head>");
+                    sb ~= format("<meta charset=\"utf-8\">");
+                    sb ~= format("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
+                    // sb ~= format("<title>Index | %s</title>", listing_rel_path);
+                    sb ~= format("<title>Index of %s</title>", listing_rel_path);
+                    sb ~= format("<link rel=\"stylesheet\" href=\"%s\">", INTERNAL_STATIC_STYLE_PATH);
+                    sb ~= format("</head>");
+                    sb ~= format("<body>");
+                    
+                    sb ~= format("<h1>Index of <code>%s</code></h1>", listing_rel_path);
+                    sb ~= format("<table class=\"list\">");
                     sb ~= format("<tr><th>name</th><th>size</th><th>modified</th></tr>");
 
                     auto dir_entries = dirEntries(true_path, SpanMode.shallow).array;
                     // sort by name, and put directories first
                     dir_entries.sort!((a, b) {
-                        if (a.isDir && !b.isDir) return true;
-                        if (!a.isDir && b.isDir) return false;
+                        if (a.isDir && !b.isDir)
+                            return true;
+                        if (!a.isDir && b.isDir)
+                            return false;
                         return a.name < b.name;
                     });
                     foreach (dir_entry; dir_entries) {
@@ -75,7 +88,8 @@ void vibrant_web(T)(T vib) {
                                 file_request_path, file_display_name, human_size, modtime.format(
                                     "%Y-%m-%d %H:%M:%S"));
                         } catch (Exception e) {
-                            logger.error("error getting file info for %s: %s", dir_entry.name, e.msg);
+                            logger.error("error getting file info for %s: %s", dir_entry.name, e
+                                    .msg);
                         }
                     }
                     sb ~= format("</table></body></html>");
