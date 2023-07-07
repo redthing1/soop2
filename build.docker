@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y \
     curl wget xz-utils \
     build-essential make libc6-dev libcurl4 \
     git libxml2 \
+    libssl-dev zlib1g-dev openssl \
     && rm -rf /var/lib/apt/lists/* && apt autoremove -y && apt clean
 
 # install dlang
