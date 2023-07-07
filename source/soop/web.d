@@ -20,9 +20,12 @@ enum INTERNAL_STATIC_PATH = "/__soop_static";
 enum INTERNAL_STATIC_STYLE_PATH = format("%s/style.css", INTERNAL_STATIC_PATH);
 enum INTERNAL_STATIC_STYLE_DATA = import("style.css");
 
-enum INTERNAL_STATIC_ICON_ICON_PATH = format("%s/icon.png", INTERNAL_STATIC_PATH);
+enum INTERNAL_STATIC_ICON_ICON_PATH = format("%s/icon.svg", INTERNAL_STATIC_PATH);
 enum INTERNAL_STATIC_ICON_FAVICON_DATA = import("favicon.ico");
-enum INTERNAL_STATIC_ICON_ICON_DATA = import("icon.png");
+enum INTERNAL_STATIC_ICON_ICON_DATA = import("icon.svg");
+
+enum INTERNAL_STATIC_BRAND_PATH = format("%s/brand.svg", INTERNAL_STATIC_PATH);
+enum INTERNAL_STATIC_BRAND_DATA = import("brandh.svg");
 
 enum DIR_INDEX_FILES = ["index.html", "index.htm"];
 
@@ -32,8 +35,11 @@ void vibrant_web(T)(T vib) {
         Get(INTERNAL_STATIC_STYLE_PATH, "text/css", (req, res) {
             return INTERNAL_STATIC_STYLE_DATA;
         });
-        Get(INTERNAL_STATIC_ICON_ICON_PATH, "image/png", (req, res) {
+        Get(INTERNAL_STATIC_ICON_ICON_PATH, "image/svg+xml", (req, res) {
             return INTERNAL_STATIC_ICON_ICON_DATA;
+        });
+        Get(INTERNAL_STATIC_BRAND_PATH, "image/svg+xml", (req, res) {
+            return INTERNAL_STATIC_BRAND_DATA;
         });
 
         // serve data directory as static files
