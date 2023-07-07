@@ -10,6 +10,7 @@ import std.algorithm;
 
 import vibrant.d;
 import datefmt;
+import typetips;
 
 // import mir.ser.json : serializeJson;
 
@@ -68,20 +69,26 @@ void vibrant_web(T)(T vib) {
         void serve_public_dir_action(HTTPServerRequest req, HTTPServerResponse res) {
             if (!verify_auth(req, res)) {
                 res.statusCode = HTTPStatus.unauthorized;
-                res.writeBody("unauthorized");
-                return;
+                return res.writeBody("unauthorized");
             }
 
-            logger.trace("GET %s", req.path); // get the true path
-            auto true_path = join_path_jailed(g_context.public_dir, req.path[1 .. $]);
+            logger.trace("GET %s", req.path);
+            // get the true path
+            auto maybe_true_path = join_path_jailed(g_context.public_dir, req.path[1 .. $]);
+            if (!maybe_true_path.has) {
+                // bad request
+                logger.warn("rejecting request with bad path: %s", req.path);
+                res.statusCode = HTTPStatus.badRequest;
+                return res.writeBody("bad request");
+            }
+            auto true_path = maybe_true_path.get;
             logger.trace("  true path: %s", true_path); // check if the path is a directory
 
             // if the path does not exist, return 404
             if (!exists(true_path)) {
                 logger.info("path does not exist: %s", true_path);
                 res.statusCode = HTTPStatus.notFound;
-                res.writeBody("not found");
-                return;
+                return res.writeBody("not found");
             }
 
             if (isDir(true_path)) {
@@ -89,11 +96,13 @@ void vibrant_web(T)(T vib) {
                 if (req.path.endsWith("/")) {
                     // if index file exists, serve it
                     foreach (index_file; DIR_INDEX_FILES) {
-                        auto index_file_path = join_path_jailed(true_path, index_file);
+                        auto maybe_index_file_path = join_path_jailed(true_path, index_file);
+                        if (!maybe_index_file_path.has)
+                            continue;
+                        auto index_file_path = maybe_index_file_path.get;
                         if (exists(index_file_path)) {
                             logger.info("serving index file: %s", index_file_path);
-                            serveStaticFile(index_file_path)(req, res);
-                            return;
+                            return serveStaticFile(index_file_path)(req, res);
                         }
                     }
                     // if no index file exists, serve directory listing
@@ -193,9 +202,10 @@ void vibrant_web(T)(T vib) {
         void upload_file_action(HTTPServerRequest req, HTTPServerResponse res) {
             if (!verify_auth(req, res)) {
                 res.statusCode = HTTPStatus.unauthorized;
-                res.writeBody("unauthorized");
-                return;
+                return res.writeBody("unauthorized");
             }
+
+            logger.trace("POST %s", req.path);
 
             if (!g_context.enable_upload) {
                 res.statusCode = HTTPStatus.forbidden;
@@ -230,7 +240,13 @@ void vibrant_web(T)(T vib) {
                 recv_filename = format("%s_%s", datestamp, upl_save_name);
             }
 
-            auto recv_path = join_path_jailed(g_context.upload_dir, recv_filename);
+            auto maybe_recv_path = join_path_jailed(g_context.upload_dir, recv_filename);
+            if (!maybe_recv_path.has) {
+                logger.error("invalid filename: %s", recv_filename);
+                res.statusCode = HTTPStatus.badRequest;
+                return res.writeBody("bad target filename");
+            }
+            auto recv_path = maybe_recv_path.get;
 
             // ensure the path's parent directory exists
             auto recv_path_parent = std.path.dirName(recv_path);

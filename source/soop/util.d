@@ -151,7 +151,7 @@ string simple_pattern_to_regex(string pattern) {
     return escaped_pattern;
 }
 
-string join_path_jailed(string base_dir, string component) {
+Optional!string join_path_jailed(string base_dir, string component) {
     import std.path : buildPath, buildNormalizedPath, absolutePath, asNormalizedPath;
 
     // join the paths, and ensure the result is jailed in the base dir
@@ -165,10 +165,11 @@ string join_path_jailed(string base_dir, string component) {
     // if the joined path is not a subpath of the base dir, return the base dir
     if (!joined_path.startsWith(absolute_base_dir)) {
         // writefln("  joined_path is not a subpath of base_dir, returning base_dir: %s", base_dir);
-        return base_dir;
+        // return base_dir;
+        return no!string;
     }
 
-    return joined_path;
+    return some(joined_path);
 }
 
 string normalized_abspath(string path) {
