@@ -10,8 +10,13 @@ dependency "commandr" version="~>0.2.0"
 dependency "minlog" version="~>3.0.0"
 dependency "typetips" version="~>0.1.4"
 stringImportPaths "res"
+
 configuration "default" {
 	targetType "executable"
+}
+configuration "optim" {
+	targetType "executable"
+	dflags "-Os" "--flto=thin"
 }
 configuration "static_bin" {
 	targetType "executable"

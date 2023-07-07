@@ -10,8 +10,16 @@ the based http fileserver
 + support for http basic auth for uploads/downloads/both
 
 ## build
+
+build default debug-mode binary:
 ```sh
 dub build
+```
+
+build optimized binary:
+```sh
+dub build -B release --compiler=ldc2 -c optim
+strip soop2
 ```
 
 ## docker
