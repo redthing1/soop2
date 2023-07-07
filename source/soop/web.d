@@ -81,9 +81,10 @@ void vibrant_web(T)(T vib) {
                     auto sb = appender!string;
                     auto listing_rel_path = relativePath(true_path, g_context
                             .public_dir);
-                    if (listing_rel_path == ".")
-                        listing_rel_path = "";
-                    listing_rel_path = format("/%s", listing_rel_path);
+                    if (listing_rel_path.startsWith("."))
+                        listing_rel_path = listing_rel_path[1 .. $];
+                    if (!listing_rel_path.startsWith("/"))
+                        listing_rel_path = format("/%s", listing_rel_path);
 
                     sb ~= format("<!DOCTYPE html>");
                     sb ~= format("<html><head>");
