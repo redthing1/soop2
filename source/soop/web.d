@@ -20,6 +20,10 @@ enum INTERNAL_STATIC_PATH = "/__soop_static";
 enum INTERNAL_STATIC_STYLE_PATH = format("%s/style.css", INTERNAL_STATIC_PATH);
 enum INTERNAL_STATIC_STYLE_DATA = import("style.css");
 
+enum INTERNAL_STATIC_ICON_ICON_PATH = format("%s/icon.png", INTERNAL_STATIC_PATH);
+enum INTERNAL_STATIC_ICON_FAVICON_DATA = import("favicon.ico");
+enum INTERNAL_STATIC_ICON_ICON_DATA = import("icon.png");
+
 enum DIR_INDEX_FILES = ["index.html", "index.htm"];
 
 void vibrant_web(T)(T vib) {
@@ -27,6 +31,9 @@ void vibrant_web(T)(T vib) {
         // serve internal static files
         Get(INTERNAL_STATIC_STYLE_PATH, "text/css", (req, res) {
             return INTERNAL_STATIC_STYLE_DATA;
+        });
+        Get(INTERNAL_STATIC_ICON_ICON_PATH, "image/png", (req, res) {
+            return INTERNAL_STATIC_ICON_ICON_DATA;
         });
 
         // serve data directory as static files
@@ -83,8 +90,16 @@ void vibrant_web(T)(T vib) {
             auto true_path = maybe_true_path.get;
             logger.trace("  true path: %s", true_path); // check if the path is a directory
 
+            // special case: favicon.ico
+            if (true_path.endsWith("/favicon.ico") && !std.file.exists(true_path)) {
+                logger.info("serving embedded favicon.ico");
+                res.statusCode = HTTPStatus.ok;
+                res.headers["Content-Type"] = "image/x-icon";
+                return res.writeBody(INTERNAL_STATIC_ICON_FAVICON_DATA);
+            }
+
             // if the path does not exist, return 404
-            if (!exists(true_path)) {
+            if (!std.file.exists(true_path)) {
                 logger.error("path does not exist: %s", true_path);
                 res.statusCode = HTTPStatus.notFound;
                 return res.writeBody("not found");
@@ -127,8 +142,9 @@ void vibrant_web(T)(T vib) {
                     sb ~= format("<body>");
                     sb ~= format("<div class=\"wrapper\">");
                     sb ~= format("<main>");
+                    sb ~= format("<img src=\"%s\" alt=\"logo\" class=\"logo-icon\">", INTERNAL_STATIC_ICON_ICON_PATH);
                     sb ~= format(
-                        "<h1>Index of <code>%s</code></h1>", listing_rel_path);
+                        "<h1 class=\"index-info\">Index of <code>%s</code></h1>", listing_rel_path);
                     sb ~= format("<table class=\"list\">");
                     sb ~= format(
                         "<tr><th>name</th><th>size</th><th>modified</th></tr>");
