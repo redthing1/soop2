@@ -112,7 +112,7 @@ DirEntry[] filter_ignored_paths_from(DirEntry[] entries, string base_dir, string
             import std.regex : regex, matchFirst;
 
             auto re = regex(regex_str);
-            // writefln("matching path [%s] against pattern [%s] / regex [%s]", rel_path, regex_str, regex_str);
+            // writefln("matching path `%s` against pattern `%s` / regex `%s`", rel_path, regex_str, regex_str);
             if (matchFirst(rel_path, re)) {
                 // file is ignored
                 // writeln("  matched, ignoring");
@@ -140,13 +140,19 @@ string simple_pattern_to_regex(string pattern) {
     auto escaped_pattern = pattern.replace(r"([\\^$.*+?()[\]{}|])", r"\\$1");
 
     // replace * with .*
-    escaped_pattern = escaped_pattern.replace(r"\*", r".*");
+    escaped_pattern = escaped_pattern.replace(r"*", r".*");
 
     // replace ? with .
-    escaped_pattern = escaped_pattern.replace(r"\?", r".");
+    escaped_pattern = escaped_pattern.replace(r"?", r".");
 
-    // add ^ and $ to match the whole string
-    escaped_pattern = "^" ~ escaped_pattern ~ "$";
+    // // add ^ and $ to match the whole string
+    // escaped_pattern = "^" ~ escaped_pattern ~ "$";
+
+    // for now only add a $ by default (if it's not already there)
+    if (!escaped_pattern.endsWith("$"))
+        escaped_pattern = format("%s$", escaped_pattern);
+
+    // writefln("simple_pattern_to_regex: pattern = `%s`, escaped_pattern = `%s`", pattern, escaped_pattern);
 
     return escaped_pattern;
 }
