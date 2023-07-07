@@ -50,6 +50,7 @@ void main(string[] args) {
 	auto server_config = ServerConfig();
 	auto security_config = SecurityConfig();
 	auto listing_config = ListingConfig();
+	auto upload_config = UploadConfig();
 	if (a.option("configfile")) {
 		auto config_path = a.option("configfile");
 		logger.info("using config file %s", config_path);
@@ -63,8 +64,8 @@ void main(string[] args) {
 		enable_upload = toOptional(server_config.enable_upload);
 
 		TomlConfigHelper.bind!SecurityConfig(security_config, config_doc, "security");
-
 		TomlConfigHelper.bind!ListingConfig(listing_config, config_doc, "listing");
+		TomlConfigHelper.bind!UploadConfig(upload_config, config_doc, "upload");
 	}
 
 	// cli arg config overrides config file
@@ -81,6 +82,7 @@ void main(string[] args) {
 
 	g_context.security_config = security_config;
 	g_context.listing_config = listing_config;
+	g_context.upload_config = upload_config;
 
 	// chdir to data dir
 	if (!std.file.exists(g_context.public_dir)) {
@@ -96,7 +98,7 @@ void main(string[] args) {
 	auto settings = new HTTPServerSettings;
 	settings.bindAddresses = [server_host.get];
 	settings.port = cast(ushort) server_port.get;
-	settings.maxRequestSize = server_config.max_upload_size;
+	settings.maxRequestSize = g_context.upload_config.max_request_size;
 
 	logger.dbg("public dir: %s", g_context.public_dir);
 	logger.dbg("upload dir: %s", g_context.upload_dir);
@@ -104,6 +106,7 @@ void main(string[] args) {
 	// logger.dbg("security config: %s", security_config);
 	logger.dbg("security config: %s", security_config);
 	logger.dbg("listing config: %s", listing_config);
+	logger.dbg("upload config: %s", upload_config);
 
 	auto vib = Vibrant(settings);
 	vibrant_web(vib);

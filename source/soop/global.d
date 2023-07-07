@@ -11,9 +11,6 @@ struct ServerConfig {
     Nullable!string public_dir;
     Nullable!string upload_dir;
     Nullable!bool enable_upload;
-
-    // these options can only be set in the config file
-    long max_upload_size = 1024 * 1024 * 1024; // 1 GiB
 }
 
 enum SecurityPolicy {
@@ -34,6 +31,12 @@ struct ListingConfig {
     Nullable!string ignore_file;
 }
 
+struct UploadConfig {
+    long max_request_size = 1024 * 1024 * 1024; // 1 GiB
+    bool prepend_timestamp = true;
+    bool prevent_overwrite = true;
+}
+
 struct Context {
     string public_dir;
     string upload_dir;
@@ -41,6 +44,7 @@ struct Context {
 
     SecurityConfig security_config;
     ListingConfig listing_config;
+    UploadConfig upload_config;
 }
 
 Context g_context;

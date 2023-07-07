@@ -40,7 +40,7 @@ void vibrant_web(T)(T vib) {
             auto needs_auth = (is_upload_request && upload_needs_auth) || (!is_upload_request && download_needs_auth);
             auto auth_available = !g_context.security_config.username.isNull && !g_context
                 .security_config.password.isNull;
-            
+
             if (!needs_auth) {
                 // auth is not needed, so we don't need to check
                 return true;
@@ -200,10 +200,27 @@ void vibrant_web(T)(T vib) {
 
             // make a filename for the uploaded file
             auto datestamp = Clock.currTime.format("%Y%m%d_%H%M%S");
-            auto recv_filename = format("%s_%s", datestamp, upl_save_name);
+            // auto recv_filename = format("%s_%s", datestamp, upl_save_name);
+            auto recv_filename = upl_save_name;
+
+            if (g_context.upload_config.prepend_timestamp) {
+                recv_filename = format("%s_%s", datestamp, upl_save_name);
+            }
 
             // copy the temporary file to the data directory
             auto recv_path = buildPath(g_context.upload_dir, recv_filename);
+
+            // check if the file already exists
+            if (std.file.exists(recv_path)) {
+                if (g_context.upload_config.prevent_overwrite) {
+                    logger.error("file %s already exists, and overwriting is disabled", recv_path);
+                    res.statusCode = HTTPStatus.conflict;
+                    return res.writeBody("file already exists");
+                } else {
+                    logger.warn("file %s already exists, overwriting", recv_path);
+                }
+            }
+
             std.file.copy(upl_file.tempPath.to!string, recv_path);
             logger.info("saved file %s to %s", upl_save_name, recv_path);
 
