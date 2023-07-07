@@ -73,7 +73,7 @@ void vibrant_web(T)(T vib) {
             }
 
             logger.trace("GET %s", req.path); // get the true path
-            auto true_path = buildPath(g_context.public_dir, req.path[1 .. $]);
+            auto true_path = join_path_jailed(g_context.public_dir, req.path[1 .. $]);
             logger.trace("  true path: %s", true_path); // check if the path is a directory
 
             // if the path does not exist, return 404
@@ -89,7 +89,7 @@ void vibrant_web(T)(T vib) {
                 if (req.path.endsWith("/")) {
                     // if index file exists, serve it
                     foreach (index_file; DIR_INDEX_FILES) {
-                        auto index_file_path = buildPath(true_path, index_file);
+                        auto index_file_path = join_path_jailed(true_path, index_file);
                         if (exists(index_file_path)) {
                             logger.info("serving index file: %s", index_file_path);
                             serveStaticFile(index_file_path)(req, res);
@@ -102,7 +102,7 @@ void vibrant_web(T)(T vib) {
                     // return a simple html directory listing
                     auto sb = appender!string;
                     auto listing_rel_path = relativePath(true_path, g_context
-                            .public_dir);
+                            .public_dir.normalized_abspath);
                     if (listing_rel_path.startsWith("."))
                         listing_rel_path = listing_rel_path[1 .. $];
                     if (!listing_rel_path.startsWith("/"))
@@ -130,7 +130,7 @@ void vibrant_web(T)(T vib) {
                         // filter out ignored files
                         dir_entries = filter_ignored_paths_from(
                             dir_entries,
-                            g_context.public_dir,
+                            g_context.public_dir.normalized_abspath,
                             g_context.listing_config.ignore_file.get
                         );
                     }
@@ -151,7 +151,7 @@ void vibrant_web(T)(T vib) {
                         try {
                             // get the relative path of the dir entry to the data dir
                             auto rel_path = relativePath(dir_entry.name, g_context
-                                    .public_dir);
+                                    .public_dir.normalized_abspath);
                             auto modtime = std.file.timeLastModified(
                                 dir_entry.name);
                             string file_display_name;
@@ -230,7 +230,7 @@ void vibrant_web(T)(T vib) {
                 recv_filename = format("%s_%s", datestamp, upl_save_name);
             }
 
-            auto recv_path = buildPath(g_context.upload_dir, recv_filename);
+            auto recv_path = join_path_jailed(g_context.upload_dir, recv_filename);
 
             // ensure the path's parent directory exists
             auto recv_path_parent = std.path.dirName(recv_path);

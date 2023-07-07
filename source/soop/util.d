@@ -150,3 +150,29 @@ string simple_pattern_to_regex(string pattern) {
 
     return escaped_pattern;
 }
+
+string join_path_jailed(string base_dir, string component) {
+    import std.path : buildPath, buildNormalizedPath, absolutePath, asNormalizedPath;
+
+    // join the paths, and ensure the result is jailed in the base dir
+    // essentially, prevent any sort of path traversal
+
+    // writefln("join_path_jailed(%s, %s)", base_dir, component);
+    auto absolute_base_dir = absolutePath(base_dir).normalized_abspath;
+    auto joined_path = buildNormalizedPath(absolute_base_dir, component);
+    // writefln("  absolute_base_dir = %s, joined_path = %s", absolute_base_dir, joined_path);
+
+    // if the joined path is not a subpath of the base dir, return the base dir
+    if (!joined_path.startsWith(absolute_base_dir)) {
+        // writefln("  joined_path is not a subpath of base_dir, returning base_dir: %s", base_dir);
+        return base_dir;
+    }
+
+    return joined_path;
+}
+
+string normalized_abspath(string path) {
+    import std.path : buildNormalizedPath;
+
+    return std.path.absolutePath(path).asNormalizedPath.array;
+}
