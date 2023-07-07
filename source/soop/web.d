@@ -122,8 +122,7 @@ void vibrant_web(T)(T vib) {
                     sb ~= format("<meta charset=\"utf-8\">");
                     sb ~= format(
                         "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
-                    // sb ~= format("<title>Index | %s</title>", listing_rel_path);
-                    sb ~= format("<title>Index of %s</title>", listing_rel_path);
+                    sb ~= format("<title>soop2 | %s</title>", listing_rel_path);
                     sb ~= format("<link rel=\"stylesheet\" href=\"%s\">", INTERNAL_STATIC_STYLE_PATH);
                     sb ~= format("</head>");
                     sb ~= format("<body>");
