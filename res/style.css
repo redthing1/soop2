@@ -27,14 +27,14 @@ h1 {
     font-size: 2.5rem;
 }
 
-h1>code {
+code {
     background-color: #eee1c5;
     padding: 0 0.4rem;
     font-family: 'Iosevka', 'Andale Mono', 'Lucida Console', 'Courier New', monospace;
 }
 
 @media(prefers-color-scheme: dark) {
-    h1>code {
+    code {
         background-color: #574d62;
     }
 }
@@ -79,7 +79,7 @@ footer {
     margin-top: 32px;
     /* font-size: 0.8rem; */
     border-top: 1px solid #3f303f;
-    color: #695e6e;
+    /* color: #695e6e; */
 }
 
 
@@ -98,6 +98,6 @@ footer {
 
     footer {
         border-top: 1px solid #fffaef;
-        color: #8c8ea8;
+        /* color: #8c8ea8; */
     }
 }
