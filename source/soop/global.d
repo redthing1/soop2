@@ -16,6 +16,11 @@ struct ServerConfig {
     long max_upload_size = 1024 * 1024 * 1024; // 1 GiB
 }
 
+struct SecurityConfig {
+    Nullable!string username;
+    Nullable!string password;
+}
+
 struct ListingConfig {
     Nullable!string ignore_file;
 }
@@ -25,6 +30,7 @@ struct Context {
     string upload_dir;
     bool enable_upload;
 
+    SecurityConfig security_config;
     ListingConfig listing_config;
 }
 Context g_context;

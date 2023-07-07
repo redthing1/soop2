@@ -48,6 +48,7 @@ void main(string[] args) {
 
 	// config file, if provided
 	auto server_config = ServerConfig();
+	auto security_config = SecurityConfig();
 	auto listing_config = ListingConfig();
 	if (a.option("configfile")) {
 		auto config_path = a.option("configfile");
@@ -60,6 +61,8 @@ void main(string[] args) {
 		public_dir = toOptional(server_config.public_dir);
 		upload_dir = toOptional(server_config.upload_dir);
 		enable_upload = toOptional(server_config.enable_upload);
+
+		TomlConfigHelper.bind!SecurityConfig(security_config, config_doc, "security");
 
 		TomlConfigHelper.bind!ListingConfig(listing_config, config_doc, "listing");
 	}
@@ -76,6 +79,7 @@ void main(string[] args) {
 	g_context.upload_dir = upload_dir.get;
 	g_context.enable_upload = enable_upload.get;
 
+	g_context.security_config = security_config;
 	g_context.listing_config = listing_config;
 
 	// chdir to data dir
@@ -97,6 +101,7 @@ void main(string[] args) {
 	logger.dbg("public dir: %s", g_context.public_dir);
 	logger.dbg("upload dir: %s", g_context.upload_dir);
 	logger.dbg("max request size: %s", settings.maxRequestSize);
+	// logger.dbg("security config: %s", security_config);
 	logger.dbg("listing config: %s", listing_config);
 
 	auto vib = Vibrant(settings);

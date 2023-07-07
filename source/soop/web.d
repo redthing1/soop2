@@ -20,6 +20,17 @@ enum INTERNAL_STATIC_PATH = "/__soop_static";
 enum INTERNAL_STATIC_STYLE_PATH = format("%s/style.css", INTERNAL_STATIC_PATH);
 enum INTERNAL_STATIC_STYLE_DATA = import("style.css");
 
+bool verify_auth(HTTPServerRequest req) {
+    if (g_context.security_config.username.isNull) {
+        return true;
+    } else {
+        return req.checkBasicAuth((string uname, string pass) @safe {
+            return uname == g_context.security_config.username.get &&
+                pass == g_context.security_config.password.get;
+        });
+    }
+}
+
 void vibrant_web(T)(T vib) {
     with (vib) {
         // serve internal static files
@@ -31,6 +42,12 @@ void vibrant_web(T)(T vib) {
         // router.get("*", serveStaticFiles(g_context.public_dir));
 
         void serve_public_dir_action(HTTPServerRequest req, HTTPServerResponse res) {
+            if (!req.verify_auth()) {
+                res.statusCode = HTTPStatus.unauthorized;
+                res.writeBody("unauthorized");
+                return;
+            }
+
             logger.trace("GET %s", req.path);
             // get the true path
             auto true_path = buildPath(g_context.public_dir, req.path[1 .. $]);
@@ -131,10 +148,17 @@ void vibrant_web(T)(T vib) {
 
         // accept arbitrary POST requests
         void upload_file_action(HTTPServerRequest req, HTTPServerResponse res) {
+            if (!req.verify_auth()) {
+                res.statusCode = HTTPStatus.unauthorized;
+                res.writeBody("unauthorized");
+                return;
+            }
+
             if (!g_context.enable_upload) {
                 res.statusCode = HTTPStatus.forbidden;
                 return res.writeBody("uploading is disabled");
             }
+
             // we want to accept form data with an uploaded file
             auto uploaded_files = req.files;
             if (uploaded_files.length == 0) {
