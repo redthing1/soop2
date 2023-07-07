@@ -230,8 +230,22 @@ void vibrant_web(T)(T vib) {
                 recv_filename = format("%s_%s", datestamp, upl_save_name);
             }
 
-            // copy the temporary file to the data directory
             auto recv_path = buildPath(g_context.upload_dir, recv_filename);
+
+            // ensure the path's parent directory exists
+            auto recv_path_parent = std.path.dirName(recv_path);
+            if (!std.file.exists(recv_path_parent)) {
+                if (g_context.upload_config.create_directories) {
+                    logger.warn("creating directory: %s", recv_path_parent);
+                    std.file.mkdirRecurse(recv_path_parent);
+                } else {
+                    logger.error("directory %s does not exist", recv_path_parent);
+                    res.statusCode = HTTPStatus.notFound;
+                    return res.writeBody("directory does not exist");
+                }
+            }
+
+            // copy the temporary file to the data directory
 
             // check if the file already exists
             if (std.file.exists(recv_path)) {

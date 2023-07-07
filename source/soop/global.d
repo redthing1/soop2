@@ -35,6 +35,7 @@ struct UploadConfig {
     long max_request_size = 1024 * 1024 * 1024; // 1 GiB
     bool prepend_timestamp = true;
     bool prevent_overwrite = true;
+    bool create_directories = false;
 }
 
 struct Context {
