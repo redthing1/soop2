@@ -1,0 +1,1 @@
+dub build -B release --compiler=ldc2 -c optim
