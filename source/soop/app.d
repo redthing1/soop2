@@ -16,7 +16,7 @@ import soop.global;
 import soop.util;
 
 enum APP_NAME = "soop2";
-enum APP_VERSION = "v0.3.0";
+enum APP_VERSION = "v0.4.0";
 
 void main(string[] args) {
 	auto a = new Program(APP_NAME, APP_VERSION).summary(
