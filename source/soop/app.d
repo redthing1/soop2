@@ -16,17 +16,16 @@ import soop.global;
 import soop.util;
 
 enum APP_NAME = "soop2";
-enum APP_VERSION = "v0.4.0";
+enum APP_VERSION = "v0.5.0";
 
 void main(string[] args) {
-	auto a = new Program(APP_NAME, APP_VERSION).summary(
-		"the based http fileserver")
-		.add(new Argument("publicdir", "public directory"))
-		.add(new Option("c", "configfile", "config file to use")
-				.full("config-file"))
+	auto a = new Program(APP_NAME, APP_VERSION)
+		.summary("the based http fileserver")
+		.add(new Argument("public_dir", "public directory"))
+		.add(new Option("c", "configfile", "config file to use").full("config-file"))
 		.add(new Option("l", "host", "host to listen on").defaultValue("0.0.0.0"))
 		.add(new Option("p", "port", "config file to use").defaultValue("8000"))
-		.add(new Flag("u", "enableupload", "enable file uploads"))
+		.add(new Flag("u", "enableupload", "enable file uploads").full("enable-upload"))
 		.add(new Flag("v", "verbose", "turns on more verbose output").repeating)
 		.add(new Flag("q", "quiet", "reduces output verbosity").repeating)
 		.parse(args);
@@ -74,8 +73,8 @@ void main(string[] args) {
 		server_host = some(a.option("host"));
 	if (a.option("port"))
 		server_port = some(a.option("port").to!ushort);
-	if (a.arg("publicdir"))
-		public_dir = some(a.arg("publicdir"));
+	if (a.arg("public_dir"))
+		public_dir = some(a.arg("public_dir"));
 	if (!upload_dir.has)
 		upload_dir = public_dir; // default to public dir
 	if (!enable_upload.has)
@@ -106,16 +105,19 @@ void main(string[] args) {
 	// std.file.chdir(g_context.public_dir);
 
 	logger.info("starting %s %s at http://%s:%s", APP_NAME, APP_VERSION, server_host, server_port);
+	logger.info("public dir: %s", g_context.public_dir);
+	if (g_context.enable_upload) {
+		logger.info("upload dir: %s", g_context.upload_dir);
+	}
 
 	auto settings = new HTTPServerSettings;
 	settings.bindAddresses = [server_host.get];
 	settings.port = cast(ushort) server_port.get;
 	settings.maxRequestSize = g_context.upload_config.max_request_size;
 
-	logger.dbg("public dir: %s", g_context.public_dir);
-	logger.dbg("upload dir: %s", g_context.upload_dir);
+	// logger.dbg("public dir: %s", g_context.public_dir);
+	// logger.dbg("upload dir: %s", g_context.upload_dir);
 	logger.dbg("max request size: %s", settings.maxRequestSize);
-	// logger.dbg("security config: %s", security_config);
 	logger.dbg("security config: %s", security_config);
 	logger.dbg("listing config: %s", listing_config);
 	logger.dbg("upload config: %s", upload_config);
