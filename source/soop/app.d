@@ -15,10 +15,11 @@ import soop.web;
 import soop.global;
 import soop.util;
 
+enum APP_NAME = "soop2";
 enum APP_VERSION = "v0.2.0";
 
 void main(string[] args) {
-	auto a = new Program("soop2", APP_VERSION).summary(
+	auto a = new Program(APP_NAME, APP_VERSION).summary(
 		"the based http fileserver")
 		.add(new Argument("publicdir", "public directory"))
 		.add(new Option("c", "configfile", "config file to use")
@@ -93,7 +94,7 @@ void main(string[] args) {
 	// logger.trace("changing working directory to %s", g_context.public_dir);
 	// std.file.chdir(g_context.public_dir);
 
-	logger.info("starting soop %s at http://%s:%s", APP_VERSION, server_host, server_port);
+	logger.info("starting %s %s at http://%s:%s", APP_NAME, APP_VERSION, server_host, server_port);
 
 	auto settings = new HTTPServerSettings;
 	settings.bindAddresses = [server_host.get];
