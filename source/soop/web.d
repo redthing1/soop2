@@ -25,7 +25,7 @@ enum INTERNAL_STATIC_ICON_FAVICON_DATA = import("favicon.ico");
 enum INTERNAL_STATIC_ICON_ICON_DATA = import("icon.svg");
 
 enum INTERNAL_STATIC_BRAND_PATH = format("%s/brand.svg", INTERNAL_STATIC_PATH);
-enum INTERNAL_STATIC_BRAND_DATA = import("brandh.svg");
+enum INTERNAL_STATIC_BRAND_DATA = import("brandh2.svg");
 
 enum DIR_INDEX_FILES = ["index.html", "index.htm"];
 
@@ -142,6 +142,8 @@ void vibrant_web(T)(T vib) {
                     sb ~= format("<meta charset=\"utf-8\">");
                     sb ~= format(
                         "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
+                    sb ~= format("<meta name=\"generator\" content=\"%s %s\">", APP_NAME, APP_VERSION);
+                    sb ~= format("<link rel=\"icon\" href=\"%s\">", INTERNAL_STATIC_ICON_ICON_PATH);
                     sb ~= format("<title>%s | %s</title>", APP_NAME, listing_rel_path);
                     sb ~= format("<link rel=\"stylesheet\" href=\"%s\">", INTERNAL_STATIC_STYLE_PATH);
                     sb ~= format("</head>");
