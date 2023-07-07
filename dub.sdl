@@ -16,6 +16,7 @@ configuration "default" {
 configuration "optim" {
 	targetType "executable"
 	dflags "-Os" "--flto=thin"
+	postBuildCommands "strip -s soop2" platform="linux"
 }
 configuration "static_bin" {
 	targetType "executable"

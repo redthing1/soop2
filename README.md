@@ -19,7 +19,6 @@ dub build
 build optimized binary:
 ```sh
 dub build -B release --compiler=ldc2 -c optim
-strip soop2
 ```
 
 ## docker
