@@ -85,7 +85,7 @@ void vibrant_web(T)(T vib) {
 
             // if the path does not exist, return 404
             if (!exists(true_path)) {
-                logger.info("path does not exist: %s", true_path);
+                logger.error("path does not exist: %s", true_path);
                 res.statusCode = HTTPStatus.notFound;
                 return res.writeBody("not found");
             }
