@@ -108,6 +108,10 @@ void main(string[] args) {
 	logger.dbg("listing config: %s", listing_config);
 	logger.dbg("upload config: %s", upload_config);
 
+	if (g_context.enable_upload) {
+		logger.warn("file uploads are enabled and will be saved to %s", g_context.upload_dir);
+	}
+
 	auto vib = Vibrant(settings);
 	vibrant_web(vib);
 
