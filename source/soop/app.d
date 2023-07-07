@@ -21,7 +21,7 @@ enum APP_VERSION = "v0.7.0";
 void main(string[] args) {
 	auto a = new Program(APP_NAME, APP_VERSION)
 		.summary("the based http fileserver")
-		.add(new Argument("public_dir", "public directory"))
+		.add(new Argument("public_dir", "public directory").defaultValue("."))
 		.add(new Option("c", "configfile", "config file to use").full("config-file"))
 		.add(new Option("l", "host", "host to listen on").defaultValue("0.0.0.0"))
 		.add(new Option("p", "port", "config file to use").defaultValue("8000"))
