@@ -1,5 +1,5 @@
 name "soop2"
-description "soop bidirectional http server"
+description "the based http fileserver"
 authors "no"
 copyright "Copyright © 2023, no"
 license "proprietary"

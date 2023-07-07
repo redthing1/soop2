@@ -15,11 +15,11 @@ import soop.web;
 import soop.global;
 import soop.util;
 
-enum APP_VERSION = "v0.1.0";
+enum APP_VERSION = "v0.2.0";
 
 void main(string[] args) {
-	auto a = new Program("soop", "v0.1.0").summary(
-		"minimal bidirectional http server")
+	auto a = new Program("soop2", APP_VERSION).summary(
+		"the based http fileserver")
 		.add(new Argument("publicdir", "public directory"))
 		.add(new Option("c", "configfile", "config file to use")
 				.full("config-file"))
