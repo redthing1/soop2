@@ -142,7 +142,8 @@ void vibrant_web(T)(T vib) {
                     sb ~= format("<body>");
                     sb ~= format("<div class=\"wrapper\">");
                     sb ~= format("<main>");
-                    sb ~= format("<img src=\"%s\" alt=\"logo\" class=\"logo-icon\">", INTERNAL_STATIC_ICON_ICON_PATH);
+                    sb ~= format("<a href=\"/\"><img src=\"%s\" alt=\"logo\" class=\"logo-icon\"></a>",
+                        INTERNAL_STATIC_ICON_ICON_PATH);
                     sb ~= format(
                         "<h1 class=\"index-info\">Index of <code>%s</code></h1>", listing_rel_path);
                     sb ~= format("<table class=\"list\">");
