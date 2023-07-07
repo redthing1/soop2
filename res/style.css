@@ -9,6 +9,7 @@ html {
     font-weight: normal;
     background: #fffaef;
     color: #3f303f;
+    height: 100%;
 }
 
 @media(prefers-color-scheme: dark) {
@@ -99,5 +100,8 @@ footer {
     footer {
         border-top: 1px solid #fffaef;
         /* color: #8c8ea8; */
+        position: absolute;
+        bottom: 0;
+        /* width: 100%; */
     }
 }
