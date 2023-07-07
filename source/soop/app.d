@@ -40,7 +40,7 @@ void main(string[] args) {
 			- min(a.occurencesOf("quiet"), 2)
 	)
 		.to!Verbosity;
-	
+
 	auto server_host = no!string;
 	auto server_port = no!long;
 	auto public_dir = no!string;
@@ -57,7 +57,7 @@ void main(string[] args) {
 		logger.info("using config file %s", config_path);
 		auto config_doc = parseTOML(std.file.readText(config_path));
 		TomlConfigHelper.bind!ServerConfig(server_config, config_doc, "server");
-		
+
 		server_host = toOptional(server_config.host);
 		server_port = toOptional(server_config.port);
 		public_dir = toOptional(server_config.public_dir);
@@ -70,11 +70,22 @@ void main(string[] args) {
 	}
 
 	// cli arg config overrides config file
-	if (!server_host.has) server_host = some(a.option("host"));
-	if (!server_port.has) server_port = some(a.option("port").to!ushort);
-	if (!public_dir.has) public_dir = some(a.arg("publicdir"));
-	if (!upload_dir.has) upload_dir = public_dir; // default to public dir
-	if (!enable_upload.has) enable_upload = some(a.flag("enableupload"));
+	if (a.option("host"))
+		server_host = some(a.option("host"));
+	if (a.option("port"))
+		server_port = some(a.option("port").to!ushort);
+	if (a.arg("publicdir"))
+		public_dir = some(a.arg("publicdir"));
+	if (!upload_dir.has)
+		upload_dir = public_dir; // default to public dir
+	if (!enable_upload.has)
+		enable_upload = some(a.flag("enableupload"));
+
+	// default host and port, if still not set
+	if (!server_host.has)
+		server_host = "0.0.0.0";
+	if (!server_port.has)
+		server_port = 8000;
 
 	// copy config to global context
 	g_context.public_dir = public_dir.get;
