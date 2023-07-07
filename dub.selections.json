@@ -23,6 +23,6 @@
 		"unit-threaded": "2.0.5",
 		"vibe-core": "2.2.0",
 		"vibe-d": "0.9.6",
-		"vibrance-z": "0.3.0"
+		"vibrance-z": "0.3.1"
 	}
 }
