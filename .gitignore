@@ -2,6 +2,9 @@
 config.toml
 .soopignore
 
+docker-compose.yml
+www
+
 .dub
 docs.json
 __dummy.html

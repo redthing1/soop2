@@ -48,4 +48,3 @@ RUN ln -s /app/${BINARY_NAME} /app/run
 
 WORKDIR /app
 ENTRYPOINT ["/app/run"]
-# CMD []

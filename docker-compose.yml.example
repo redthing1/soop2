@@ -1,0 +1,14 @@
+version: '3.2'
+
+services:
+  soop2:
+    build:
+      context: .
+      args:
+        D_COMPILER: ldc-1.30.0
+    volumes:
+      - .:/www
+      - ./config.toml:/app/config.toml
+    ports:
+      - "8000:8000"
+    command: -v -c /app/config.toml /www
