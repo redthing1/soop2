@@ -20,6 +20,8 @@ enum INTERNAL_STATIC_PATH = "/__soop_static";
 enum INTERNAL_STATIC_STYLE_PATH = format("%s/style.css", INTERNAL_STATIC_PATH);
 enum INTERNAL_STATIC_STYLE_DATA = import("style.css");
 
+enum DIR_INDEX_FILES = ["index.html", "index.htm"];
+
 void vibrant_web(T)(T vib) {
     with (vib) {
         // serve internal static files
@@ -73,9 +75,21 @@ void vibrant_web(T)(T vib) {
             logger.trace("GET %s", req.path); // get the true path
             auto true_path = buildPath(g_context.public_dir, req.path[1 .. $]);
             logger.trace("  true path: %s", true_path); // check if the path is a directory
+
             if (isDir(true_path)) {
                 // check if the path ends with a slash
                 if (req.path.endsWith("/")) {
+                    // if index file exists, serve it
+                    foreach (index_file; DIR_INDEX_FILES) {
+                        auto index_file_path = buildPath(true_path, index_file);
+                        if (exists(index_file_path)) {
+                            logger.info("serving index file: %s", index_file_path);
+                            serveStaticFile(index_file_path)(req, res);
+                            return;
+                        }
+                    }
+                    // if no index file exists, serve directory listing
+
                     logger.info("serving directory listing: %s", true_path);
                     // return a simple html directory listing
                     auto sb = appender!string;
