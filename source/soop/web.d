@@ -76,6 +76,14 @@ void vibrant_web(T)(T vib) {
             auto true_path = buildPath(g_context.public_dir, req.path[1 .. $]);
             logger.trace("  true path: %s", true_path); // check if the path is a directory
 
+            // if the path does not exist, return 404
+            if (!exists(true_path)) {
+                logger.info("path does not exist: %s", true_path);
+                res.statusCode = HTTPStatus.notFound;
+                res.writeBody("not found");
+                return;
+            }
+
             if (isDir(true_path)) {
                 // check if the path ends with a slash
                 if (req.path.endsWith("/")) {
