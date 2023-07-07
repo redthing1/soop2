@@ -1,6 +1,7 @@
 # soop2
+*the based http fileserver*
 
-the based http fileserver
+soop2 originated as a "better" clone of python's `http.server` cli tool. soop2 has all those features and more, and fixes my problems and adds features i wish i had before.
 
 ## features
 
@@ -8,6 +9,8 @@ the based http fileserver
 + http file upload (POST) support
 + configuration from toml file
 + support for http basic auth for uploads/downloads/both
++ use as a [cli tool](#cli-tool)
++ use as a [configurable server](#configuration)
 
 ## build
 
@@ -34,7 +37,39 @@ copy `docker-compose.yml.example` to `docker-compose.yml` and edit it to your ne
 docker-compose up -d
 ```
 
-## configuration
+## usage
+
+### cli tool
+
+use it to rapidly spin up a local http server.
+```
+soop2: the based http fileserver (v0.6.2)
+
+USAGE
+  $ soop2 [options] public_dir
+
+FLAGS
+  -h, --help                prints help
+      --version             prints version
+  -u, --enable-upload       enable file uploads
+  -v, --verbose             turns on more verbose output
+  -q, --quiet               reduces output verbosity
+
+OPTIONS
+  -c, --config-file value   config file to use
+  -l, --host value          host to listen on
+  -p, --port value          config file to use
+
+ARGUMENTS
+  public_dir                public directory
+```
+
+example: serve the current directory on port 8000 with uploads enabled:
+```sh
+soop2 . -p 8000 -u
+```
+
+### configuration
 
 soop2 can by configured by a toml file by passing `-c /path/to/config.toml`. a few options are also available by command line arguments for convenience and portable use. command line arguments take precedence over the config file.
 
