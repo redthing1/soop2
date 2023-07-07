@@ -31,7 +31,25 @@ void vibrant_web(T)(T vib) {
         // router.get("*", serveStaticFiles(g_context.public_dir));
 
         bool verify_auth(HTTPServerRequest req, HTTPServerResponse res) {
-            if (g_context.security_config.username.isNull) {
+            // check if policy requires authentication
+            auto is_upload_request = req.method != HTTPMethod.GET;
+            auto download_needs_auth = (
+                g_context.security_config.policy & SecurityPolicy.authenticate_download) != 0;
+            auto upload_needs_auth = (
+                g_context.security_config.policy & SecurityPolicy.authenticate_upload) != 0;
+            auto needs_auth = (is_upload_request && upload_needs_auth) || (!is_upload_request && download_needs_auth);
+            auto auth_available = !g_context.security_config.username.isNull && !g_context
+                .security_config.password.isNull;
+            
+            if (!needs_auth) {
+                // auth is not needed, so we don't need to check
+                return true;
+            }
+
+            // auth is needed, so we need to check
+
+            if (!auth_available) {
+                // auth is not available, so we don't need to check
                 return true;
             } else {
                 bool check_account(string uname, string pass) @safe {

@@ -102,6 +102,7 @@ void main(string[] args) {
 	logger.dbg("upload dir: %s", g_context.upload_dir);
 	logger.dbg("max request size: %s", settings.maxRequestSize);
 	// logger.dbg("security config: %s", security_config);
+	logger.dbg("security config: %s", security_config);
 	logger.dbg("listing config: %s", listing_config);
 
 	auto vib = Vibrant(settings);

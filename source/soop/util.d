@@ -32,6 +32,7 @@ static class TomlConfigHelper {
 
         // for each member of T, bind the value from the table
         foreach (member_name; __traits(allMembers, T)) {
+            // TODO: if the member is not a variable, skip it
             // if the member is not in the table, skip it
             if (member_name !in table) {
                 // writefln("member %s not in table", member_name);
@@ -58,9 +59,12 @@ static class TomlConfigHelper {
                 __traits(getMember, ret, member_name) = Nullable!float(table[member_name].floating);
             } else static if (is(member_type == Nullable!long)) {
                 __traits(getMember, ret, member_name) = Nullable!long(table[member_name].integer);
+            } else static if (__traits(compiles, EnumMembers!member_type)) {
+                __traits(getMember, ret, member_name) = table[member_name].str.to!member_type;
             } else {
-                static assert(0, format("cannot bind model member %s of type %s", member_name, member_type
-                        .stringof));
+                // static assert(0, format("cannot bind model member %s of type %s", member_name, member_type.stringof));
+                static assert(0, format("cannot bind model member %s of type %s",
+                        member_name, __traits(fullyQualifiedName, member_type)));
             }
         }
 
