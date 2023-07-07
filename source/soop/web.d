@@ -20,17 +20,6 @@ enum INTERNAL_STATIC_PATH = "/__soop_static";
 enum INTERNAL_STATIC_STYLE_PATH = format("%s/style.css", INTERNAL_STATIC_PATH);
 enum INTERNAL_STATIC_STYLE_DATA = import("style.css");
 
-bool verify_auth(HTTPServerRequest req) {
-    if (g_context.security_config.username.isNull) {
-        return true;
-    } else {
-        return req.checkBasicAuth((string uname, string pass) @safe {
-            return uname == g_context.security_config.username.get &&
-                pass == g_context.security_config.password.get;
-        });
-    }
-}
-
 void vibrant_web(T)(T vib) {
     with (vib) {
         // serve internal static files
@@ -41,33 +30,44 @@ void vibrant_web(T)(T vib) {
         // serve data directory as static files
         // router.get("*", serveStaticFiles(g_context.public_dir));
 
+        bool verify_auth(HTTPServerRequest req, HTTPServerResponse res) {
+            if (g_context.security_config.username.isNull) {
+                return true;
+            } else {
+                bool check_account(string uname, string pass) @safe {
+                    return uname == g_context.security_config.username.get &&
+                        pass == g_context.security_config.password.get;
+                }
+
+                string realm = "server";
+                auto auth_user_name = req.performBasicAuth(res, realm, &check_account);
+                return auth_user_name == g_context.security_config.username.get;
+            }
+        }
+
         void serve_public_dir_action(HTTPServerRequest req, HTTPServerResponse res) {
-            if (!req.verify_auth()) {
+            if (!verify_auth(req, res)) {
                 res.statusCode = HTTPStatus.unauthorized;
                 res.writeBody("unauthorized");
                 return;
             }
 
-            logger.trace("GET %s", req.path);
-            // get the true path
+            logger.trace("GET %s", req.path); // get the true path
             auto true_path = buildPath(g_context.public_dir, req.path[1 .. $]);
-            logger.trace("  true path: %s", true_path);
-
-            // check if the path is a directory
+            logger.trace("  true path: %s", true_path); // check if the path is a directory
             if (isDir(true_path)) {
                 // check if the path ends with a slash
                 if (req.path.endsWith("/")) {
                     logger.info("serving directory listing: %s", true_path);
                     // return a simple html directory listing
                     auto sb = appender!string;
-
-                    auto listing_rel_path = relativePath(true_path, g_context.public_dir);
+                    auto listing_rel_path = relativePath(true_path, g_context
+                            .public_dir);
                     if (listing_rel_path == ".")
                         listing_rel_path = "";
                     listing_rel_path = format("/%s", listing_rel_path);
 
                     sb ~= format("<!DOCTYPE html>");
-
                     sb ~= format("<html><head>");
                     sb ~= format("<meta charset=\"utf-8\">");
                     sb ~= format(
@@ -77,10 +77,11 @@ void vibrant_web(T)(T vib) {
                     sb ~= format("<link rel=\"stylesheet\" href=\"%s\">", INTERNAL_STATIC_STYLE_PATH);
                     sb ~= format("</head>");
                     sb ~= format("<body>");
-
-                    sb ~= format("<h1>Index of <code>%s</code></h1>", listing_rel_path);
+                    sb ~= format(
+                        "<h1>Index of <code>%s</code></h1>", listing_rel_path);
                     sb ~= format("<table class=\"list\">");
-                    sb ~= format("<tr><th>name</th><th>size</th><th>modified</th></tr>");
+                    sb ~= format(
+                        "<tr><th>name</th><th>size</th><th>modified</th></tr>");
 
                     auto dir_entries = dirEntries(true_path, SpanMode.shallow).array;
 
@@ -100,16 +101,18 @@ void vibrant_web(T)(T vib) {
                         if (!a.isDir && b.isDir)
                             return false;
                         return a.name < b.name;
-                    });
-                    // add a parent directory link
+                    }); // add a parent directory link
                     if (listing_rel_path != "/") {
-                        sb ~= format("<tr><td><a href=\"../\">../</a></td><td></td><td></td></tr>");
+                        sb ~= format(
+                            "<tr><td><a href=\"../\">../</a></td><td></td><td></td></tr>");
                     }
                     foreach (dir_entry; dir_entries) {
                         try {
                             // get the relative path of the dir entry to the data dir
-                            auto rel_path = relativePath(dir_entry.name, g_context.public_dir);
-                            auto modtime = std.file.timeLastModified(dir_entry.name);
+                            auto rel_path = relativePath(dir_entry.name, g_context
+                                    .public_dir);
+                            auto modtime = std.file.timeLastModified(
+                                dir_entry.name);
                             string file_display_name;
                             auto rel_path_base = std.path.baseName(rel_path);
                             if (dir_entry.isDir) {
@@ -119,7 +122,8 @@ void vibrant_web(T)(T vib) {
                             }
                             auto file_request_path = format("/%s", rel_path);
                             auto human_size = human_file_size(dir_entry.size);
-                            sb ~= format("<tr><td><a href=\"%s\">%s</a></td><td>%s</td><td>%s</td></tr>",
+                            sb ~= format(
+                                "<tr><td><a href=\"%s\">%s</a></td><td>%s</td><td>%s</td></tr>",
                                 file_request_path, file_display_name, human_size, modtime.format(
                                     "%Y-%m-%d %H:%M:%S"));
                         } catch (Exception e) {
@@ -128,9 +132,9 @@ void vibrant_web(T)(T vib) {
                         }
                     }
                     sb ~= format("</table>");
-                    sb ~= format("<footer><p>Generated by <code>soop2</code></p></footer>");
+                    sb ~= format(
+                        "<footer><p>Generated by <code>soop2</code></p></footer>");
                     sb ~= format("</body></html>");
-
                     res.writeBody(sb.data, "text/html");
                 } else {
                     // if it's a dir but the request doesn't end with a slash, redirect to the same path with a slash
@@ -144,11 +148,9 @@ void vibrant_web(T)(T vib) {
             }
         }
 
-        router.get("*", &serve_public_dir_action);
-
-        // accept arbitrary POST requests
+        router.get("*", &serve_public_dir_action); // accept arbitrary POST requests
         void upload_file_action(HTTPServerRequest req, HTTPServerResponse res) {
-            if (!req.verify_auth()) {
+            if (!verify_auth(req, res)) {
                 res.statusCode = HTTPStatus.unauthorized;
                 res.writeBody("unauthorized");
                 return;
@@ -161,7 +163,8 @@ void vibrant_web(T)(T vib) {
 
             // we want to accept form data with an uploaded file
             auto uploaded_files = req.files;
-            if (uploaded_files.length == 0) {
+            if (
+                uploaded_files.length == 0) {
                 // no file uploaded
                 res.statusCode = HTTPStatus.badRequest;
                 return res.writeBody("no file uploaded");
@@ -169,10 +172,12 @@ void vibrant_web(T)(T vib) {
 
             // we only accept one file
             auto upl_file = uploaded_files.byValue.front;
-            auto upl_file_size = std.file.getSize(upl_file.tempPath.to!string);
-            auto upl_save_name = req.path[1 .. $];
-
-            logger.info("received file: %s (%s), requested to upload to: %s",
+            auto upl_file_size = std.file.getSize(
+                upl_file.tempPath.to!string);
+            auto upl_save_name = req
+                .path[1 .. $];
+            logger.info(
+                "received file: %s (%s), requested to upload to: %s",
                 upl_file.filename, upl_file_size, upl_save_name);
 
             // make a filename for the uploaded file
