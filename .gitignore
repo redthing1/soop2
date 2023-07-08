@@ -3,7 +3,9 @@ config.toml
 .soopignore
 
 docker-compose.yml
-www
+/www
+/conf
+/data
 
 .dub
 docs.json
