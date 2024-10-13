@@ -27,7 +27,7 @@ enum INTERNAL_STATIC_ICON_ICON_DATA = import("icon.svg");
 enum INTERNAL_STATIC_BRAND_PATH = format("%s/brand.svg", INTERNAL_STATIC_PATH);
 enum INTERNAL_STATIC_BRAND_DATA = import("brandh2.svg");
 
-enum DIR_INDEX_FILES = ["index.html", "index.htm"];
+static immutable DIR_INDEX_FILES = ["index.html", "index.htm"];
 
 void vibrant_web(T)(T vib) {
     with (vib) {
