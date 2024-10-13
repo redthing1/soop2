@@ -9,12 +9,12 @@ import std.array;
 import std.algorithm;
 
 import vibrant.d;
-import datefmt;
 import typetips;
 
 import soop.global;
 import soop.util;
 import soop.app : APP_NAME, APP_VERSION;
+import soop.ext.datefmt;
 
 enum INTERNAL_STATIC_PATH = "/__soop_static";
 enum INTERNAL_STATIC_STYLE_PATH = format("%s/style.css", INTERNAL_STATIC_PATH);
