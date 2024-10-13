@@ -16,7 +16,7 @@ import soop.global;
 import soop.util;
 
 enum APP_NAME = "soop2";
-enum APP_VERSION = "v0.7.0";
+enum APP_VERSION = "v0.8.0";
 
 void main(string[] args) {
 	auto a = new Program(APP_NAME, APP_VERSION)
@@ -27,18 +27,17 @@ void main(string[] args) {
 		.add(new Option("p", "port", "config file to use").defaultValue("8000"))
 		.add(new Flag("u", "enableupload", "enable file uploads").full("enable-upload"))
 		.add(new Flag("v", "verbose", "turns on more verbose output").repeating)
-		.add(new Flag("q", "quiet", "reduces output verbosity").repeating)
+		.add(new Flag("q", "quiet", "reduces output LoggerVerbosity").repeating)
 		.parse(args);
 
 	// set up logger
-	logger.use_colors = true;
-	logger.meta_timestamp = false;
-	logger.source = "tla";
-	logger.verbosity = (Verbosity.info.to!int
+	g_logger.set_format(LoggerFormat.fancy);
+	g_logger.verbosity = (LoggerVerbosity.info.to!int
 			+ min(a.occurencesOf("verbose"), 2)
 			- min(a.occurencesOf("quiet"), 2)
 	)
-		.to!Verbosity;
+		.to!LoggerVerbosity;
+	auto logger = g_logger.for_source("app");
 
 	auto server_host = no!string;
 	auto server_port = no!long;

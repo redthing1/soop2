@@ -30,6 +30,8 @@ enum INTERNAL_STATIC_BRAND_DATA = import("brandh2.svg");
 static immutable DIR_INDEX_FILES = ["index.html", "index.htm"];
 
 void vibrant_web(T)(T vib) {
+    auto logger = g_logger.for_source("web");
+
     with (vib) {
         // serve internal static files
         Get(INTERNAL_STATIC_STYLE_PATH, "text/css", (req, res) {

@@ -50,4 +50,4 @@ struct Context {
 
 Context g_context;
 
-Logger logger = Logger(Verbosity.info);
+__gshared Logger g_logger = Logger(LoggerVerbosity.info);

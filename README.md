@@ -53,7 +53,7 @@ FLAGS
       --version             prints version
   -u, --enable-upload       enable file uploads
   -v, --verbose             turns on more verbose output
-  -q, --quiet               reduces output verbosity
+  -q, --quiet               reduces output LoggerVerbosity
 
 OPTIONS
   -c, --config-file value   config file to use
