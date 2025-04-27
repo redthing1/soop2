@@ -1,13 +1,13 @@
 name "soop2"
 description "the based http fileserver"
 authors "redthing1"
-copyright "copyright © 2023, redthing1"
+copyright "copyright © 2023-2025, redthing1"
 license "proprietary"
 
-dependency "vibrance-z" version="~>0.3.2"
+dependency "typetips" version="~>0.1.4"
+dependency "vibrance-z" version="~>0.3.3"
 dependency "commandr" version="~>1.1.0"
 dependency "minlog" version="~>4.1.0"
-dependency "typetips" version="~>0.1.4"
 dependency "toml" version="~>2.0.1"
 
 stringImportPaths "res"
